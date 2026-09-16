@@ -8,7 +8,7 @@
 
 ## 在线体验
 
-- 在线访问地址：`待 GitHub Pages 部署后补充`
+- 在线访问地址：[打开学生信息管理系统](https://surnyx.github.io/student-management-system/)
 - GitHub 仓库地址：[Surnyx/student-management-system](https://github.com/Surnyx/student-management-system)
 
 ## 项目截图
