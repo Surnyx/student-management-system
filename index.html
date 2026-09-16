@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="使用原生 JavaScript 和 LocalStorage 实现的学生信息管理系统">
+  <title>学生信息管理系统</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+  <header class="page-header">
+    <div class="page-container">
+      <h1>学生信息管理系统</h1>
+      <p>Manage student information simply and efficiently.</p>
+    </div>
+  </header>
+
+  <main class="page-container">
+    <section class="panel form-panel" aria-labelledby="student-form-title">
+      <div class="section-heading">
+        <div>
+          <p class="section-label">信息录入</p>
+          <h2 id="student-form-title">新增学生</h2>
+        </div>
+      </div>
+
+      <form id="student-form" novalidate>
+        <input type="hidden" id="editing-id" value="">
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="student-id">学号</label>
+            <input
+              type="text"
+              id="student-id"
+              name="studentId"
+              placeholder="例如：20240001"
+              autocomplete="off"
+              aria-describedby="student-id-error"
+            >
+            <p class="error-message" id="student-id-error" aria-live="polite"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="student-name">姓名</label>
+            <input
+              type="text"
+              id="student-name"
+              name="name"
+              placeholder="请输入学生姓名"
+              autocomplete="off"
+              aria-describedby="student-name-error"
+            >
+            <p class="error-message" id="student-name-error" aria-live="polite"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="student-gender">性别</label>
+            <select id="student-gender" name="gender">
+              <option value="男">男</option>
+              <option value="女">女</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="student-age">年龄</label>
+            <input
+              type="number"
+              id="student-age"
+              name="age"
+              min="15"
+              max="100"
+              placeholder="请输入年龄"
+              aria-describedby="student-age-error"
+            >
+            <p class="error-message" id="student-age-error" aria-live="polite"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="student-major">专业</label>
+            <input
+              type="text"
+              id="student-major"
+              name="major"
+              placeholder="例如：软件工程"
+              autocomplete="off"
+              aria-describedby="student-major-error"
+            >
+            <p class="error-message" id="student-major-error" aria-live="polite"></p>
+          </div>
+
+          <div class="form-group">
+            <label for="student-class">班级</label>
+            <input
+              type="text"
+              id="student-class"
+              name="className"
+              placeholder="例如：软件2401"
+              autocomplete="off"
+              aria-describedby="student-class-error"
+            >
+            <p class="error-message" id="student-class-error" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="button button-primary" id="submit-button">新增学生</button>
+          <button type="button" class="button button-secondary" id="cancel-edit-button" hidden>取消编辑</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel list-panel" aria-labelledby="student-list-title">
+      <div class="section-heading list-heading">
+        <div>
+          <p class="section-label">学生档案</p>
+          <h2 id="student-list-title">学生列表</h2>
+        </div>
+        <p class="student-count">共 <span id="student-count">0</span> 名学生</p>
+      </div>
+
+      <form class="search-form" id="search-form" role="search">
+        <label class="visually-hidden" for="search-input">按照姓名或学号搜索</label>
+        <input
+          type="search"
+          id="search-input"
+          name="keyword"
+          placeholder="搜索姓名或学号"
+          autocomplete="off"
+        >
+        <button type="submit" class="button button-primary">搜索</button>
+        <button type="button" class="button button-secondary" id="clear-search-button">清空搜索</button>
+      </form>
+
+      <p class="status-message" id="status-message" aria-live="polite"></p>
+
+      <div class="table-wrapper">
+        <table>
+          <caption class="visually-hidden">学生信息列表</caption>
+          <thead>
+            <tr>
+              <th scope="col">学号</th>
+              <th scope="col">姓名</th>
+              <th scope="col">性别</th>
+              <th scope="col">年龄</th>
+              <th scope="col">专业</th>
+              <th scope="col">班级</th>
+              <th scope="col">操作</th>
+            </tr>
+          </thead>
+          <!-- 学生数据将在后续阶段通过 JavaScript 动态插入 -->
+          <tbody id="student-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" id="empty-state">
+        <p>暂无学生信息</p>
+        <span>请先在上方录入学生资料。</span>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="confirm-dialog" id="delete-dialog" aria-labelledby="delete-dialog-title">
+    <div class="confirm-dialog-content">
+      <div class="confirm-dialog-icon" aria-hidden="true">!</div>
+      <h2 id="delete-dialog-title">删除学生信息？</h2>
+      <p>
+        确定要删除 <strong id="delete-student-name"></strong> 吗？此操作完成后无法撤销。
+      </p>
+      <div class="confirm-dialog-actions">
+        <button type="button" class="button button-secondary" id="cancel-delete-button">取消</button>
+        <button type="button" class="button button-danger" id="confirm-delete-button">确认删除</button>
+      </div>
+    </div>
+  </dialog>
+
+  <noscript>请启用 JavaScript 后使用学生信息管理系统。</noscript>
+
+  <!-- 按“存储 → 校验 → 渲染 → 业务流程”的依赖顺序加载 -->
+  <script src="./js/storage.js" defer></script>
+  <script src="./js/validation.js" defer></script>
+  <script src="./js/render.js" defer></script>
+  <script src="./js/app.js" defer></script>
+</body>
+</html>
